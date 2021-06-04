@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import pygame
 
 import time
 import os
@@ -8,6 +9,8 @@ import copy
 import clip
 import movie
 from viewer import MovieViewer, MovieWriter
+
+pygame.init()
 
 W = 600
 H = 700
@@ -30,6 +33,7 @@ movie.append_clip(my_clip)
 movie.append_clip(my_nature)
 
 MovieViewer.play(movie)
+# MovieWriter.export("hello_dear", movie)
 # MovieWriter.export("New Movie", movie)
 # movie.export("helpme.avi")
 # movie.add_clip(my_clip)

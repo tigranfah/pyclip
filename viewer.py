@@ -7,25 +7,8 @@ import time
 from clip import Position
 from movie import MovieBase
 from gui import StopResumeButton
-
-pygame.init()
-
-
-class Converter:
-
-    @staticmethod
-    def surface_to_frame(surface):
-        frame = pygame.surfarray.pixels3d(pygame.transform.rotate(pygame.transform.flip(surface, True, False), 90))
-        bgr_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        return bgr_frame
-
-    @staticmethod
-    def frame_to_surface(frame):
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-        numpy_frame_surf = pygame.surfarray.make_surface(rgb_frame)
-        frame_surf = pygame.transform.rotate(pygame.transform.flip(numpy_frame_surf, False, True), -90)
-        return frame_surf
+from renderer import Renderer, Converter
+from event_handler import MouseEvent
 
 
 class MovieWriter(MovieBase):
@@ -110,6 +93,10 @@ class MovieViewer(MovieBase):
 
         self._clock = pygame.time.Clock()
 
+        self._renderer = None
+
+        self._mouse_event = None
+
         self._movie_width = None
         self._movie_height = None
 
@@ -132,7 +119,14 @@ class MovieViewer(MovieBase):
         self._display = pygame.display.set_mode((self._width, self._height), flags=pygame.SHOWN)
         pygame.display.set_caption("Viewer window.")
 
+        self._renderer = Renderer(self._display)
+
+        self._mouse_event = MouseEvent()
+
         self._stop_resume_button = StopResumeButton(Position(self._width / 2 - 25, self._height - 50), 50, 50)
+
+    def poll_events(self):
+        pass
 
     @staticmethod
     def play(movie):
@@ -147,14 +141,16 @@ class MovieViewer(MovieBase):
 
                 sr_button = MovieViewer.__instance._stop_resume_button
 
+                mouse = MovieViewer.__instance._mouse_event
+
                 for event in pygame.event.get():
 
-                    if event.type == pygame.MOUSEBUTTONUP:
-                        if event.button == 1:
-                            clicked_pos = pygame.mouse.get_pos()
+                    MovieViewer.__instance._mouse_event.update(event)
+                    
+                    if mouse.event_type.get_event("LEFT"):
+                        if sr_button.is_clicked(mouse.position[0], mouse.position[1]):
+                            sr_button.on_click()
 
-                            if sr_button.is_clicked(clicked_pos[0], clicked_pos[1]):
-                                sr_button.on_click()
 
                     if event.type == pygame.QUIT:
                         return
@@ -162,16 +158,17 @@ class MovieViewer(MovieBase):
                 if sr_button.is_on:
                     continue
 
+                # if MovieViewer.__instance._mouse_event.is_pressed:
+                #     print(MovieViewer.__instance._mouse_event.event_type)
+
                 current_frame = next(current_clip.get_next_frame(), np.empty(0))
                 if current_frame.shape[0] == 0:
                     break
 
-                surface = Converter.frame_to_surface(current_frame)
+                MovieViewer.__instance._renderer.render_frame(current_clip.position, current_frame)
 
-                MovieViewer.__instance._display.blit(surface, (current_clip.position.x, current_clip.position.y))
-
-                pygame.draw.rect(MovieViewer.__instance._display, (255, 255, 0), (sr_button.position.x, sr_button.position.y, sr_button.width, sr_button.height))
-
+                MovieViewer.__instance._renderer.render_gui_component(sr_button)
+                
                 MovieViewer.__instance._clock.tick(MovieViewer.__instance._fps)
 
                 pygame.display.update()
