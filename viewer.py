@@ -6,7 +6,7 @@ import time
 
 from clip import Position
 from movie import MovieBase
-from gui import StopResumeButton
+from gui import ControlBar
 from renderer import Renderer, Converter
 from event_handler import MouseEvent
 
@@ -89,7 +89,6 @@ class MovieViewer(MovieBase):
         MovieBase.__init__(self, None, None, None, None)
 
         self._display = None
-        self._stop_resume_button = None
 
         self._clock = pygame.time.Clock()
 
@@ -97,24 +96,23 @@ class MovieViewer(MovieBase):
 
         self._mouse_event = None
 
+        self._control_bar = None
+
         self._movie_width = None
         self._movie_height = None
-
-        self._control_bar_width = None
-        self._control_bar_height = 100
 
         MovieViewer.__instance = self
 
     def __init_display(self, width, height, fps):
 
+        self._width = width
+        self._height = height + 100
+        self._fps = fps
+
         self._movie_width = width
         self._movie_height = height
 
-        self._control_bar_width = width
-
-        self._width = width
-        self._height = height + self._control_bar_height
-        self._fps = fps
+        self._control_bar = ControlBar(Position(0, height), width, 100)
 
         self._display = pygame.display.set_mode((self._width, self._height), flags=pygame.SHOWN)
         pygame.display.set_caption("Viewer window.")
@@ -122,8 +120,6 @@ class MovieViewer(MovieBase):
         self._renderer = Renderer(self._display)
 
         self._mouse_event = MouseEvent()
-
-        self._stop_resume_button = StopResumeButton(Position(self._width / 2 - 25, self._height - 50), 50, 50)
 
     def poll_events(self):
         pass
@@ -139,24 +135,32 @@ class MovieViewer(MovieBase):
 
             while True:
 
-                sr_button = MovieViewer.__instance._stop_resume_button
+                ctrl_bar = MovieViewer.__instance._control_bar
 
                 mouse = MovieViewer.__instance._mouse_event
 
                 for event in pygame.event.get():
 
                     MovieViewer.__instance._mouse_event.update(event)
-                    
-                    if mouse.event_type.get_event("LEFT"):
-                        if sr_button.is_clicked(mouse.position[0], mouse.position[1]):
-                            sr_button.on_click()
+
+                    if mouse.is_pressed:
+                        if mouse.event_type.get_event("LEFT"):
+                            if ctrl_bar.slider.slider_button.is_clicked(mouse):
+                                ctrl_bar.slider.slide(mouse.position[0])
+                    else:
+                        ctrl_bar.slider.slider_button.is_pressed = False
+                                
+
+                    # if mouse.event_type.get_event("LEFT"):
+                    #     if sr_button.is_clicked(mouse.position[0], mouse.position[1]):
+                    #         sr_button.on_click()
 
 
                     if event.type == pygame.QUIT:
                         return
 
-                if sr_button.is_on:
-                    continue
+                # if sr_button.is_on:
+                #     continue
 
                 # if MovieViewer.__instance._mouse_event.is_pressed:
                 #     print(MovieViewer.__instance._mouse_event.event_type)
@@ -165,9 +169,11 @@ class MovieViewer(MovieBase):
                 if current_frame.shape[0] == 0:
                     break
 
+                MovieViewer.__instance._renderer.clear()
+
                 MovieViewer.__instance._renderer.render_frame(current_clip.position, current_frame)
 
-                MovieViewer.__instance._renderer.render_gui_component(sr_button)
+                MovieViewer.__instance._renderer.render_gui_component(ctrl_bar)
                 
                 MovieViewer.__instance._clock.tick(MovieViewer.__instance._fps)
 
