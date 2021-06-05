@@ -13,16 +13,17 @@ dol = clip.ClipManager.load_from_file(os.path.join("res", "dolphins.mov"))
 view = clip.ClipManager.load_from_file(os.path.join("res", "view.mp4"))
 
 # nat.info.position_type = "left"
+W, H = 1020, 720
+# nat.info.width = W
+# nat.info.height = H
 
-nat.info.width = 1020
-nat.info.height = 720
+# dol.info.width = W
+# dol.info.height = H
 
-dol.info.width = 1020
-dol.info.height = 720
-
-movie = movie.Movie("Name", 1020, 720, 60)
+movie = movie.Movie("Name", W, H, 60)
 movie.append_clip(nat)
 movie.append_clip(dol)
 movie.append_clip(view)
 
+# MovieWriter.export("movie", movie)
 MovieViewer.play(movie)
