@@ -23,32 +23,9 @@ my_clip.info.position_type = "center"
 my_clip.info.width = 600
 my_clip.info.height = 700
 
-# print(my_clip.info.width, my_clip.info.height)
-
-# my_nature.info.width = 1500
-# my_nature.info.height = 1200
 
 movie = movie.Movie("hellodear", W, H, 30)
 movie.append_clip(my_clip)
 movie.append_clip(my_nature)
 
 MovieViewer.play(movie)
-# MovieWriter.export("hello_dear", movie)
-# MovieWriter.export("New Movie", movie)
-# movie.export("helpme.avi")
-# movie.add_clip(my_clip)
-# for frame in my_clip.frames:
-#     cv2.imshow("frames", frame)
-
-# print(my_clip.clip_source.get_frame())
-
-# for frame in my_clip.clip_source.get_frame():
-# print(my_clip.info.frame_count)
-# while True:
-    
-#     frame = my_clip.content_file.get_next_frame()
-    
-#     cv2.imshow("Frame", frame)
-
-#     if cv2.waitKey(2) & 0xFF == ord("q"):
-#         break

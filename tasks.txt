@@ -1,3 +1,8 @@
 1. Create a video bar to stop, resume video slide frames back and forth.
 2. Cut the videos
 3. Create video overlaping feature. (2 clips in one display (ege one on another))
+4. Create sound
+
+
+Bugs.
+1. Cannot add two same clips(the same variable) to a movie

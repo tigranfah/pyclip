@@ -62,6 +62,8 @@ class ClipInfo:
         self.position = position
         self.position_type = position_type
 
+        self.pos_in_movie = None
+
 
 class ClipSource:
     
@@ -90,6 +92,9 @@ class VideoCaptureSource(ClipSource):
 
     def restore_source(self):
         self.__init_capture()
+
+    def set(self, frame_number):
+        self._capture.set(1, frame_number)
 
     @property
     def width(self):

@@ -33,7 +33,7 @@ class Movie(MovieBase):
 
     def __init__(self, title, width, height, fps):
         MovieBase.__init__(self, title, width, height, fps)
-        self._clip_sequence = []
+        self._clip_sequence = {}
 
     def __get_position_by_pos_type(self, clip):
         if clip.info.position:
@@ -60,19 +60,27 @@ class Movie(MovieBase):
             "bottom-right" : Position(self._width - clip.info.width, self._height - clip.info.height)
         }[clip.info.position_type]
 
-    def get_next_clip(self):
-        for clip in self._clip_sequence:
-
-            clip.position = self.__get_position_by_pos_type(clip)
-
-            yield clip
+    def get_clip(self, index):
+        return self._clip_sequence[index]
 
     def append_clip(self, clip):
-        self._clip_sequence.append(clip)
+        if not self._clip_sequence:
+            clip.info.pos_in_movie = (0, clip.info.frame_count)
+        else:
+            prev_clip_place = self._clip_sequence[len(self._clip_sequence)].info.pos_in_movie
+            clip.info.pos_in_movie = (prev_clip_place[1], prev_clip_place[1] + clip.info.frame_count)
+        clip.position = self.__get_position_by_pos_type(clip)
+        self._clip_sequence[len(self._clip_sequence) + 1] = clip
+
+    def get_clip_by_frame_index(self, index):
+        for i, clip in self._clip_sequence.items():
+            if clip.info.pos_in_movie[0] <= index and clip.info.pos_in_movie[1] > index:
+                return i, clip
+        raise Exception("Given index : {} is out of movie frame.")
 
     @property
     def frame_count(self):
-        return sum([clip.info.frame_count for clip in self.clip_sequence])
+        return sum([clip.info.frame_count for clip in self.clip_sequence.values()])
 
     @property
     def clip_sequence(self):
