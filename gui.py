@@ -1,3 +1,5 @@
+import pygame_gui
+
 from clip import Position
 
 
@@ -22,7 +24,6 @@ class Button(GuiComponent):
         self._click_callback = click_callback
 
     def is_clicked(self, x, y):
-        print("clicked")
         if x >= self.position.x and y >= self.position.y:
             if x <= self.position.x + self.width and y <= self.position.y + self.height:
                 return True
@@ -54,15 +55,11 @@ class SlideButton(Button):
         self.is_pressed = False
         self.on_click_callback(self.__on_slide_callback)
 
-    def is_clicked(self, mouse):
-        if not mouse.is_pressed: 
-            self.is_pressed = False
-            return self.is_pressed
-        else:
-            if self.is_pressed:
-                return True
-            self.is_pressed = Button.is_clicked(self, mouse.position[0], mouse.position[1])
-            return self.is_pressed
+    def is_clicked(self, x, y):
+        if self.is_pressed:
+            return True
+        self.is_pressed = Button.is_clicked(self, x, y)
+        return self.is_pressed
 
     def __on_slide_callback(self, x_pos):
         self.position.x = x_pos
@@ -74,8 +71,10 @@ class Slider(GuiComponent):
 
         self.slider_button = SlideButton(Position(pos.x, pos.y), 20, height)
         self.slider_button.color = (255, 255, 255)
-        # self._time_line = GuiComponent()
+        self.time_line = GuiComponent(Position(pos.x, pos.y), width, height)
+        self.time_line.color = (150, 150, 150)
         self._current_index = 0
+        self.subcomponents.append(self.time_line)
         self.subcomponents.append(self.slider_button)
 
     def slide(self, x_pos):
@@ -87,11 +86,13 @@ class Slider(GuiComponent):
         return self._current_index
 
 
-class ControlBar(GuiComponent):
+class ControlBar:
 
-    def __init__(self, pos, width, height):
-        GuiComponent.__init__(self, pos, width, height)
+    def __init__(self):
 
-        # self._stop_resume_button = StopResumeButton()
-        self.slider = Slider(pos, width, height * 0.5, (0, 1000))
-        self.subcomponents.append(self.slider)
+        pass
+        # GuiComponent.__init__(self, pos, width, height)
+
+        # # self._stop_resume_button = StopResumeButton()
+        # self.slider = Slider(pos, width, height * 0.5, (0, 1000))
+        # self.subcomponents.append(self.slider)

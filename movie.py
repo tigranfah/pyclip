@@ -71,5 +71,9 @@ class Movie(MovieBase):
         self._clip_sequence.append(clip)
 
     @property
+    def frame_count(self):
+        return sum([clip.info.frame_count for clip in self.clip_sequence])
+
+    @property
     def clip_sequence(self):
         return self._clip_sequence

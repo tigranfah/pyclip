@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import pygame
+import pygame_gui
 
 import time
 
@@ -96,23 +97,27 @@ class MovieViewer(MovieBase):
 
         self._mouse_event = None
 
-        self._control_bar = None
-
         self._movie_width = None
         self._movie_height = None
 
         MovieViewer.__instance = self
 
-    def __init_display(self, width, height, fps):
+    def __init_display(self, movie):
 
-        self._width = width
-        self._height = height + 100
-        self._fps = fps
+        self._width = movie.width
+        self._height = movie.height + 100
+        self._fps = movie.fps
 
-        self._movie_width = width
-        self._movie_height = height
+        self._movie_width = movie.width
+        self._movie_height = movie.height
 
-        self._control_bar = ControlBar(Position(0, height), width, 100)
+        self._manager = pygame_gui.UIManager((self._width, self._height))
+
+        self._slider_bar = pygame_gui.elements.UIHorizontalSlider(relative_rect=pygame.Rect((0, movie.height), (self._width, 20)), start_value=0, value_range=(0, movie.frame_count), manager=self._manager)
+
+        print(dir(self._slider_bar))
+
+        self._button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((movie.width/2 - 25, movie.height+20), (50, 50)), text="hello", manager=self._manager)
 
         self._display = pygame.display.set_mode((self._width, self._height), flags=pygame.SHOWN)
         pygame.display.set_caption("Viewer window.")
@@ -127,15 +132,15 @@ class MovieViewer(MovieBase):
     @staticmethod
     def play(movie):
 
-        time1 = time.time()
+        time_delta = MovieViewer.__instance._clock.tick(60)/1000.0
 
-        MovieViewer.__instance.__init_display(movie.width, movie.height, movie.fps)
+        MovieViewer.__instance.__init_display(movie)
+
+        slide_bar = MovieViewer.__instance._slider_bar
 
         for current_clip in movie.get_next_clip():
 
-            while True:
-
-                ctrl_bar = MovieViewer.__instance._control_bar
+            for current_frame in current_clip.get_next_frame():
 
                 mouse = MovieViewer.__instance._mouse_event
 
@@ -143,18 +148,12 @@ class MovieViewer(MovieBase):
 
                     MovieViewer.__instance._mouse_event.update(event)
 
-                    if mouse.is_pressed:
-                        if mouse.event_type.get_event("LEFT"):
-                            if ctrl_bar.slider.slider_button.is_clicked(mouse):
-                                ctrl_bar.slider.slide(mouse.position[0])
-                    else:
-                        ctrl_bar.slider.slider_button.is_pressed = False
-                                
+                    if event.type == pygame.USEREVENT:
+                        if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                            if event.ui_element == MovieViewer.__instance._button:
+                                print("Pressed!")
 
-                    # if mouse.event_type.get_event("LEFT"):
-                    #     if sr_button.is_clicked(mouse.position[0], mouse.position[1]):
-                    #         sr_button.on_click()
-
+                    MovieViewer.__instance._manager.process_events(event)
 
                     if event.type == pygame.QUIT:
                         return
@@ -165,17 +164,21 @@ class MovieViewer(MovieBase):
                 # if MovieViewer.__instance._mouse_event.is_pressed:
                 #     print(MovieViewer.__instance._mouse_event.event_type)
 
-                current_frame = next(current_clip.get_next_frame(), np.empty(0))
-                if current_frame.shape[0] == 0:
-                    break
+                MovieViewer.__instance._manager.update(time_delta)
+
+                # current_frame = next(current_clip.get_next_frame(), np.empty(0))
+                # if current_frame.shape[0] == 0:
+                #     break
+
+                slide_bar.set_current_value(slide_bar.get_current_value() + 1)
 
                 MovieViewer.__instance._renderer.clear()
 
                 MovieViewer.__instance._renderer.render_frame(current_clip.position, current_frame)
 
-                MovieViewer.__instance._renderer.render_gui_component(ctrl_bar)
-                
                 MovieViewer.__instance._clock.tick(MovieViewer.__instance._fps)
+
+                MovieViewer.__instance._manager.draw_ui(MovieViewer.__instance._display)
 
                 pygame.display.update()
 
