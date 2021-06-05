@@ -172,7 +172,7 @@ class MovieViewer(MovieBase):
             if not current_clip:
                 break
 
-            current_clip.clip_source.set(0)
+            current_clip.initialize()
 
             # print(dir(pygame_gui))
 
@@ -201,7 +201,7 @@ class MovieViewer(MovieBase):
                     if event.type == pygame.QUIT:
                         return
 
-                if is_playing:
+                if is_playing and not is_moving:
                     current_frame = next(current_clip.get_next_frame(), np.empty(0))
                     slide_bar.set_current_value(slide_bar.get_current_value() + 1)
                     if current_frame.shape[0] == 0:
@@ -211,9 +211,9 @@ class MovieViewer(MovieBase):
 
                 MovieViewer.__instance._manager.update(time_delta)
 
-                if is_moving:
+                if has_been_moved:
                     ind, _clip = movie.get_clip_by_frame_index(slide_bar.get_current_value())
-                    _clip.clip_source.set(slide_bar.get_current_value() - _clip.info.pos_in_movie[0])
+                    _clip.clip_source.set_read_frame(slide_bar.get_current_value() - _clip.info.pos_in_movie[0] + _clip.info.frame_indices[0])
                     frame_index = slide_bar.get_current_value()
                     clip_index = ind
                     print("moved to", clip_index)
