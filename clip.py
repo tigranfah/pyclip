@@ -135,9 +135,6 @@ class Clip:
         self._info = None
         self._clip_source = None
 
-    # def get_frame(self, index):
-    #     pass
-
     def initialize(self):
         self._clip_source.restore_source()
         self._clip_source.set_read_frame(self._info.frame_indices[0])

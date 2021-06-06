@@ -29,6 +29,7 @@ dol.info.height = H
 view.info.width = W
 view.info.height = H
 
+view.cut_from_right(100)
 view.cut_from_right(150)
 
 movie = movie.Movie("Name", W, H, 60)

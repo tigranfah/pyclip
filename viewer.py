@@ -189,7 +189,7 @@ class MovieViewer(MovieBase):
                         else:
                             if is_moving:
                                 has_been_moved = True
-                            is_moving = False
+                            is_moving = False                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 
                         if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                             if event.ui_element == MovieViewer.__instance._button:
