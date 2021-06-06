@@ -143,7 +143,7 @@ class Clip:
 
         while self._clip_source.current_frame_index <= self._info.frame_indices[1]:
             ret, frame = self._clip_source.read_next_frame()
-        
+
             if not ret: break
 
             resized_frame = cv2.resize(frame, (self._info.width, self._info.height), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)

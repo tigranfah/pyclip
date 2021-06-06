@@ -60,27 +60,33 @@ class Movie(MovieBase):
             "bottom-right" : Position(self._width - clip.info.width, self._height - clip.info.height)
         }[clip.info.position_type]
 
-    def get_clip(self, index):
-        return self._clip_sequence[index]
-
     def append_clip(self, clip):
         if not self._clip_sequence:
             clip.info.pos_in_movie = (0, clip.info.frame_count)
         else:
-            prev_clip_place = self._clip_sequence[len(self._clip_sequence)].info.pos_in_movie
-            clip.info.pos_in_movie = (prev_clip_place[1], prev_clip_place[1] + clip.info.frame_count)
-        clip.position = self.__get_position_by_pos_type(clip)
+            prev_clip_place = self._clip_sequence[len(self._clip_sequence)].info.pos_in_movie[1]
+            clip.info.pos_in_movie = (prev_clip_place, prev_clip_place + clip.info.frame_count)
+        clip.info.position = self.__get_position_by_pos_type(clip)
+        self._clip_sequence[len(self._clip_sequence) + 1] = clip
+
+    def put_clip(self, clip, frame_number):
+        clip.info.pos_in_movie = (frame_number, frame_number + clip.info.frame_count)
+        clip.info.position = self.__get_position_by_pos_type(clip)
         self._clip_sequence[len(self._clip_sequence) + 1] = clip
 
     def get_clip_by_frame_index(self, index):
         for i, clip in self._clip_sequence.items():
             if clip.info.pos_in_movie[0] <= index and clip.info.pos_in_movie[1] > index:
-                return i, clip
-        raise Exception("Given index : {} is out of movie frame.")
+                yield i, clip
 
     @property
     def frame_count(self):
-        return sum([clip.info.frame_count for clip in self.clip_sequence.values()])
+        largest_frame = 0
+        for clip in self.clip_sequence.values():
+            if clip.info.pos_in_movie[1] > largest_frame:
+                largest_frame = clip.info.pos_in_movie[1]
+        return largest_frame
+
 
     @property
     def clip_sequence(self):

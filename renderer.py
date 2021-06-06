@@ -31,7 +31,6 @@ class Renderer:
     def render_frame(self, position, frame):
 
         surface = Converter.frame_to_surface(frame)
-
         self._display.blit(surface, (position.x, position.y))
 
     def render_gui_component(self, comp):

@@ -50,26 +50,49 @@ class MovieWriter(MovieBase):
 
         MovieWriter.__instance._video_writer = cv2.VideoWriter("{}.mp4".format(movie_name), cv2.VideoWriter_fourcc(*"mp4v"), 30, (movie.width, movie.height))
 
-        clip_index = 1
+        # while True:
 
-        while True:
+        #     if not current_clip:
+        #         break
+
+        #     clip_index = clip_index + 1
+
+        #     for frame in current_clip.get_next_frame():
+
+        #         MovieWriter.__instance._renderer.clear()
+
+        #         MovieWriter.__instance._renderer.render_frame(current_clip.position, frame)
+                
+        #         dsiplay_frame = Converter.surface_to_frame(pygame.display.get_surface())
+                
+        #         MovieWriter.__instance._video_writer.write(dsiplay_frame)
+
+        # # print(time.time() - time1)
+
+        # pygame.display.quit()
+
+
+        for frame_index in range(1, movie.frame_count + 1):
             
-            current_clip = movie.clip_sequence.get(clip_index)
+            current_clips = [clip for i, clip in movie.get_clip_by_frame_index(frame_index)]
 
-            if not current_clip:
+            print(current_clips)
+
+            if not current_clips:
                 break
 
-            clip_index = clip_index + 1
+            MovieWriter.__instance._renderer.clear()
 
-            for frame in current_clip.get_next_frame():
+            current_frames = []
+            for clip in current_clips:
+                current_frames.append(next(clip.get_next_frame(), np.empty(0)))
 
-                MovieWriter.__instance._renderer.clear()
+            for clip, frame in zip(current_clips, current_frames):
+                MovieWriter.__instance._renderer.render_frame(clip.info.position, frame)
 
-                MovieWriter.__instance._renderer.render_frame(current_clip.position, frame)
+            display_frame = Converter.surface_to_frame(pygame.display.get_surface())
                 
-                dsiplay_frame = Converter.surface_to_frame(pygame.display.get_surface())
-                
-                MovieWriter.__instance._video_writer.write(dsiplay_frame)
+            MovieWriter.__instance._video_writer.write(display_frame)
 
         # print(time.time() - time1)
 
@@ -148,14 +171,7 @@ class MovieViewer(MovieBase):
         MovieViewer.__instance.__init_display(movie)
 
         slide_bar = MovieViewer.__instance._slider_bar
-
-        frame_index = 0
-
-        for i, clip in movie.clip_sequence.items():
-            print(i, clip)
-
-        clip_index = 0
-
+        
         is_playing = True
 
         # print(MovieViewer.__instance._slider_bar._focus_set)
@@ -163,74 +179,80 @@ class MovieViewer(MovieBase):
         is_moving = False
         has_been_moved = False
 
+        current_clips = []
+
         while True:
 
-            clip_index = clip_index + 1
-            
-            current_clip = movie.clip_sequence.get(clip_index)
-
-            if not current_clip:
-                break
-
-            current_clip.initialize()
+            # for clip in current_clips:
+            #     clip.initialize()
 
             # print(dir(pygame_gui))
 
-            while True:
+            for event in pygame.event.get():
 
-                for event in pygame.event.get():
+                MovieViewer.__instance._mouse_event.update(event)
+                if event.type == pygame.USEREVENT:
+                    # print("thread")
+                    if event.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
+                        if event.ui_element == MovieViewer.__instance._slider_bar:
+                            is_moving = True
+                    else:
+                        if is_moving:
+                            has_been_moved = True
+                        is_moving = False                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 
-                    MovieViewer.__instance._mouse_event.update(event)
-                    if event.type == pygame.USEREVENT:
-                        # print("thread")
-                        if event.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
-                            if event.ui_element == MovieViewer.__instance._slider_bar:
-                                is_moving = True
-                        else:
-                            if is_moving:
-                                has_been_moved = True
-                            is_moving = False                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-
-                        if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
-                            if event.ui_element == MovieViewer.__instance._button:
-                                is_playing = False if is_playing else True
+                    if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                        if event.ui_element == MovieViewer.__instance._button:
+                            is_playing = False if is_playing else True
 
 
-                    MovieViewer.__instance._manager.process_events(event)
+                MovieViewer.__instance._manager.process_events(event)
 
-                    if event.type == pygame.QUIT:
-                        return
+                if event.type == pygame.QUIT:
+                    return
 
-                if is_playing and not is_moving:
-                    current_frame = next(current_clip.get_next_frame(), np.empty(0))
-                    slide_bar.set_current_value(slide_bar.get_current_value() + 1)
-                    if current_frame.shape[0] == 0:
-                        break
+            prev_current_clips = current_clips
+            
+            current_clips = [clip for i, clip in movie.get_clip_by_frame_index(slide_bar.get_current_value())]
 
-                mouse = MovieViewer.__instance._mouse_event
+            for clip in prev_current_clips:
+                if not clip in current_clips:
+                    clip.initialize()
 
-                MovieViewer.__instance._manager.update(time_delta)
+            if has_been_moved:
+                for clip in current_clips:
+                    clip.clip_source.set_read_frame(slide_bar.get_current_value() - clip.info.pos_in_movie[0] + clip.info.frame_indices[0])
+                    print("moved to", clip)
+                has_been_moved = False
 
-                if has_been_moved:
-                    ind, _clip = movie.get_clip_by_frame_index(slide_bar.get_current_value())
-                    _clip.clip_source.set_read_frame(slide_bar.get_current_value() - _clip.info.pos_in_movie[0] + _clip.info.frame_indices[0])
-                    frame_index = slide_bar.get_current_value()
-                    clip_index = ind
-                    print("moved to", clip_index)
-                    current_clip = _clip
-                    has_been_moved = False
+            if is_playing:
+                current_frames = []
+                for clip in current_clips:
+                    current_frames.append(next(clip.get_next_frame(), np.empty(0)))
+                slide_bar.set_current_value(slide_bar.get_current_value() + 1)
+                # frame_index = frame_index + 1
 
-                MovieViewer.__instance._renderer.clear()
+            # print(current_clips)
 
-                MovieViewer.__instance._renderer.render_frame(current_clip.position, current_frame)
+            if not current_clips:
+                break
+                
+            mouse = MovieViewer.__instance._mouse_event
 
-                MovieViewer.__instance._clock.tick(MovieViewer.__instance._fps)
+            MovieViewer.__instance._manager.update(time_delta)
 
-                MovieViewer.__instance._manager.draw_ui(MovieViewer.__instance._display)
+            MovieViewer.__instance._renderer.clear()
 
-                pygame.display.update()
+            for clip, frame in zip(current_clips, current_frames):
+                MovieViewer.__instance._renderer.render_frame(clip.info.position, frame)
 
-                MovieViewer.__instance._clock.tick(60)
+            MovieViewer.__instance._clock.tick(MovieViewer.__instance._fps)
+
+            MovieViewer.__instance._manager.draw_ui(MovieViewer.__instance._display)
+
+            pygame.display.update()
+
+            MovieViewer.__instance._clock.tick(60)
 
         # print(time.time() - time1)
 

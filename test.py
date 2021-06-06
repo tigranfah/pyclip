@@ -23,24 +23,27 @@ W, H = 720, 480
 nat.info.width = W
 nat.info.height = H
 
-dol.info.width = W
-dol.info.height = H
+view.info.position_type = "top-left"
+dol.info.position_type = "bottom-right"
 
-view.info.width = W
-view.info.height = H
+dol.info.width = 500
+dol.info.height = 350
 
-view.cut_from_right(100)
-view.cut_from_right(150)
+view.info.width = 500
+view.info.height = 350
+
+# view.cut_from_right(50)
+# view.cut_from_right(150)
 
 movie = movie.Movie("Name", W, H, 60)
-movie.append_clip(view)
-movie.append_clip(dol)
+movie.put_clip(view, 0)
+movie.put_clip(dol, 100)
 # movie.append_clip(view)
 # a = nat
 # b = dol
 # c = view
-# movie.append_clip(a)
-# movie.append_clip(b)
+# movie.append_clip(view)
+# movie.append_clip(dol)
 # movie.append_clip(c)
 
 # MovieWriter.export("movie", movie)
