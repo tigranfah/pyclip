@@ -28,7 +28,7 @@ class MovieWriter(MovieBase):
 
         MovieWriter.__instance = self
 
-    def __init_display(self, width, height, fps):
+    def init_display(self, width, height, fps):
         self._width = width
         self._height = height
         self._fps = fps
@@ -39,63 +39,8 @@ class MovieWriter(MovieBase):
         self._renderer = Renderer(self._display)
 
     @staticmethod
-    def export(movie_name, movie):
-
-        time1 = time.time()
-
-        MovieWriter.__instance.__init_display(movie.width, movie.height, movie.fps)
-
-        MovieWriter.__instance._video_writer = cv2.VideoWriter("{}.mp4".format(movie_name), cv2.VideoWriter_fourcc(*"mp4v"), 30, (movie.width, movie.height))
-
-        # while True:
-
-        #     if not current_clip:
-        #         break
-
-        #     clip_index = clip_index + 1
-
-        #     for frame in current_clip.get_next_frame():
-
-        #         MovieWriter.__instance._renderer.clear()
-
-        #         MovieWriter.__instance._renderer.render_frame(current_clip.position, frame)
-                
-        #         dsiplay_frame = Converter.surface_to_frame(pygame.display.get_surface())
-                
-        #         MovieWriter.__instance._video_writer.write(dsiplay_frame)
-
-        # # print(time.time() - time1)
-
-        # pygame.display.quit()
-
-
-        for frame_index in range(1, movie.frame_count + 1):
-            
-            current_clips = [clip for i, clip in movie.get_clip_by_frame_index(frame_index)]
-
-            if not current_clips:
-                break
-
-            MovieWriter.__instance._renderer.clear()
-
-            current_frames = []
-            for clip in current_clips:
-                current_frames.append(next(clip.get_next_frame(), np.empty(0)))
-
-            for clip, frame in zip(current_clips, current_frames):
-                MovieWriter.__instance._renderer.render_frame(clip.info.position, frame)
-
-            display_frame = Converter.surface_to_frame(pygame.display.get_surface())
-                
-            MovieWriter.__instance._video_writer.write(display_frame)
-
-        # print(time.time() - time1)
-
-        pygame.display.quit()
-
-    @staticmethod
     def get_instance():
-        return Viewer.__instance
+        return MovieWriter.__instance
 
     @property
     def width(self):
@@ -107,3 +52,59 @@ class MovieWriter(MovieBase):
 
 
 MovieWriter()
+
+
+def export(movie_name, movie):
+
+    time1 = time.time()
+
+    movie_writer = MovieWriter.get_instance()
+
+    movie_writer.init_display(movie.width, movie.height, movie.fps)
+
+    movie_writer._video_writer = cv2.VideoWriter("{}.mp4".format(movie_name), cv2.VideoWriter_fourcc(*"mp4v"), 30, (movie.width, movie.height))
+
+    # while True:
+
+    #     if not current_clip:
+    #         break
+
+    #     clip_index = clip_index + 1
+
+    #     for frame in current_clip.get_next_frame():
+
+    #         movie_writer._renderer.clear()
+
+    #         movie_writer._renderer.render_frame(current_clip.position, frame)
+                
+    #         dsiplay_frame = Converter.surface_to_frame(pygame.display.get_surface())
+                
+    #         movie_writer._video_writer.write(dsiplay_frame)
+
+    # print(time.time() - time1)
+
+    # pygame.display.quit()
+
+    for frame_index in range(1, movie.frame_count + 1):
+            
+        current_clips = [clip for i, clip in movie.get_clip_by_frame_index(frame_index)]
+
+        if not current_clips:
+            break
+
+        movie_writer._renderer.clear()
+
+        current_frames = []
+        for clip in current_clips:
+            current_frames.append(next(clip.get_next_frame(), np.empty(0)))
+
+        for clip, frame in zip(current_clips, current_frames):
+            movie_writer._renderer.render_frame(clip.info.position, frame)
+
+        display_frame = Converter.surface_to_frame(pygame.display.get_surface())
+                
+        movie_writer._video_writer.write(display_frame)
+
+    # print(time.time() - time1)
+
+    pygame.display.quit()
