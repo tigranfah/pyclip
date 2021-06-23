@@ -7,46 +7,7 @@ import os
 import sys
 
 import error_handler
-
-
-class Position:
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __add__(self, _pos):
-        pos = copy.deepcopy(self)
-        pos.x = self.x + _pos.x
-        pos.y = self.y + _pos.y
-        return pos
-
-    def __sub__(self, _pos):
-        pos = copy.deepcopy(self)
-        pos.x = self.x - _pos.x
-        pos.y = self.y - _pos.y
-        return pos
-
-    def __str__(self):
-        return "Position({}, {})".format(self.x, self.y)
-
-
-class ClipManager:
-
-    @staticmethod
-    def load_from_file(file_path):
-        if not error_handler.path_is_valid(file_path):
-            raise error_handler.PathIsNotValid("{} is not a valid file directory.".format(file_path))
-
-        new_clip = Clip()
-
-        # cap = cv2.VideoCapture(file_path)
-
-        new_clip.clip_source = VideoCaptureSource(file_path)
-        new_clip.info = ClipInfo("Movie1", new_clip.clip_source.width, new_clip.clip_source.height, 
-                      new_clip.clip_source.frame_count, new_clip.clip_source.fps, position_type="center")
-
-        return new_clip
+from transformation import Position
 
 
 class ClipInfo:
@@ -96,7 +57,6 @@ class VideoCaptureSource(ClipSource):
         self._capture = cv2.VideoCapture(self._file_path)
 
     def read_next_frame(self):
-        # print(self.current_frame_index)
         if self._capture.isOpened():
             ret, frame = self._capture.read()
             
@@ -131,9 +91,14 @@ class VideoCaptureSource(ClipSource):
 
 class Clip:
 
-    def __init__(self):
-        self._info = None
-        self._clip_source = None
+    def __init__(self, file_path):
+
+        if not error_handler.path_is_valid(file_path):
+            raise error_handler.PathIsNotValid("{} is not a valid file directory.".format(file_path))
+
+        self._clip_source = VideoCaptureSource(file_path)
+        self._info = ClipInfo(os.path.split(file_path)[-1], self._clip_source.width, self._clip_source.height, 
+                      self._clip_source.frame_count, self._clip_source.fps, position_type="center")
 
     def initialize(self):
         self._clip_source.restore_source()

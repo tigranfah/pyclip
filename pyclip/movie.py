@@ -87,7 +87,6 @@ class Movie(MovieBase):
                 largest_frame = clip.info.pos_in_movie[1]
         return largest_frame
 
-
     @property
     def clip_sequence(self):
         return self._clip_sequence

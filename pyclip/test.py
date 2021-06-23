@@ -2,16 +2,18 @@ import os
 import copy
 
 import pygame
+import cv2
 
 import clip
 import movie
-from viewer import MovieViewer, MovieWriter
+from viewer import MovieViewer
+from writer import MovieWriter
 
 pygame.init()
 
-nat = clip.ClipManager.load_from_file(os.path.join("res", "nature.mp4"))
-dol = clip.ClipManager.load_from_file(os.path.join("res", "dolphins.mov"))
-view = clip.ClipManager.load_from_file(os.path.join("res", "view.mp4"))
+nat = clip.Clip(os.path.join("res", "nature.mp4"))
+dol = clip.Clip(os.path.join("res", "dolphins.mov"))
+view = clip.Clip(os.path.join("res", "view.mp4"))
 
 # a = clip.ClipManager.load_from_file(os.path.join("res", "nature.mp4"))
 # b = clip.ClipManager.load_from_file(os.path.join("res", "dolphins.mov"))
