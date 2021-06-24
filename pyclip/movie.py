@@ -36,28 +36,26 @@ class Movie(MovieBase):
         self._clip_sequence = {}
 
     def __get_position_by_pos_type(self, clip):
-        if clip.info.position:
-            return clip.info.position
         return {
-            "" : Position(0, 0),
-            "center" : Position(
-                (self._width - clip.info.width) / 2,
-                (self._height - clip.info.height) / 2
+            "" : (0, 0),
+            "center" : (
+                (self._width - clip.info.trans.scale.w) / 2,
+                (self._height - clip.info.trans.scale.h) / 2
             ),
-            "left" : Position(0, (self._height - clip.info.height) / 2),
-            "top" : Position((self._width - clip.info.width) / 2, 0),
-            "right" : Position(
-                self._width - clip.info.width,
-                (self._height - clip.info.height) / 2
+            "left" : (0, (self._height - clip.info.trans.scale.h) / 2),
+            "top" : ((self._width - clip.info.trans.scale.w) / 2, 0),
+            "right" : (
+                self._width - clip.info.trans.scale.w,
+                (self._height - clip.info.trans.scale.h) / 2
             ),
-            "bottom" : Position(
-                (self._width - clip.info.width) / 2,
-                self._height - clip.info.height
+            "bottom" : (
+                (self._width - clip.info.trans.scale.w) / 2,
+                self._height - clip.info.trans.scale.h
             ),
-            "top-left" : Position(0, 0),
-            "top-right" : Position(self._width - clip.info.width, 0),
-            "bottom-left" : Position(0, self._height - clip.info.height),
-            "bottom-right" : Position(self._width - clip.info.width, self._height - clip.info.height)
+            "top-left" : (0, 0),
+            "top-right" : (self._width - clip.info.trans.scale.w, 0),
+            "bottom-left" : (0, self._height - clip.info.trans.scale.h),
+            "bottom-right" : (self._width - clip.info.trans.scale.w, self._height - clip.info.trans.scale.h)
         }[clip.info.position_type]
 
     def append_clip(self, clip):
@@ -66,12 +64,14 @@ class Movie(MovieBase):
         else:
             prev_clip_place = self._clip_sequence[len(self._clip_sequence)].info.pos_in_movie[1]
             clip.info.pos_in_movie = (prev_clip_place, prev_clip_place + clip.info.frame_count)
-        clip.info.position = self.__get_position_by_pos_type(clip)
+        if clip.info.position_type:
+            clip.info.trans.pos = self.__get_position_by_pos_type(clip)
         self._clip_sequence[len(self._clip_sequence) + 1] = clip
 
     def put_clip(self, clip, frame_number):
         clip.info.pos_in_movie = (frame_number, frame_number + clip.info.frame_count)
-        clip.info.position = self.__get_position_by_pos_type(clip)
+        if clip.info.position_type:
+            clip.info.trans.pos = self.__get_position_by_pos_type(clip)
         self._clip_sequence[len(self._clip_sequence) + 1] = clip
 
     def get_clip_by_frame_index(self, index):

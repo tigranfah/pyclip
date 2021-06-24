@@ -7,22 +7,20 @@ import os
 import sys
 
 import error_handler
-from transformation import Position
+from transformation import Transformation, Position
 
 
 class ClipInfo:
     
-    def __init__(self, title, width, height, frame_count, fps, position=None, position_type=""):
+    def __init__(self, title, pos, rot, scale, frame_count, fps, position_type=""):
 
         self.title = title
-        self.width = width
-        self.height = height
+        self.trans = Transformation(pos, rot, scale)
         self.frame_count = frame_count
         self.fps = fps
 
         self._frame_indices = (0, frame_count)
 
-        self.position = position
         self.position_type = position_type
 
         self.pos_in_movie = ()
@@ -97,7 +95,7 @@ class Clip:
             raise error_handler.PathIsNotValid("{} is not a valid file directory.".format(file_path))
 
         self._clip_source = VideoCaptureSource(file_path)
-        self._info = ClipInfo(os.path.split(file_path)[-1], self._clip_source.width, self._clip_source.height, 
+        self._info = ClipInfo(os.path.split(file_path)[-1], (0, 0), (self._clip_source.width, self._clip_source.height), (0, 0), 
                       self._clip_source.frame_count, self._clip_source.fps, position_type="center")
 
     def initialize(self):
@@ -111,7 +109,7 @@ class Clip:
 
             if not ret: break
 
-            resized_frame = cv2.resize(frame, (self._info.width, self._info.height), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
+            resized_frame = cv2.resize(frame, (self._info.trans.scale.w, self._info.trans.scale.h), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
 
             yield resized_frame
 

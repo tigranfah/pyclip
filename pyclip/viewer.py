@@ -5,7 +5,6 @@ import pygame_gui
 
 import time
 
-from clip import Position
 from movie import MovieBase
 from renderer import Renderer, Converter
 
@@ -144,7 +143,7 @@ def play(movie):
         movie_viewer._renderer.clear()
 
         for clip, frame in zip(current_clips, current_frames):
-            movie_viewer._renderer.render_frame(clip.info.position, frame)
+            movie_viewer._renderer.render_frame(clip.info.trans.pos, frame)
 
         movie_viewer._clock.tick(movie_viewer._fps)
 

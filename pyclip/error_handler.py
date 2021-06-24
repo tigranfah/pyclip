@@ -6,5 +6,14 @@ def path_is_valid(path):
         return True
     return False
 
+
+def is_of_type(value, type):
+    return isinstance(value, tuple)
+
+
 class PathIsNotValid(Exception):
+    pass
+
+
+class ValueError(Exception):
     pass
