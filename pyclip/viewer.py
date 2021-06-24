@@ -143,7 +143,7 @@ def play(movie):
         movie_viewer._renderer.clear()
 
         for clip, frame in zip(current_clips, current_frames):
-            movie_viewer._renderer.render_frame(clip.info.trans.pos, frame)
+            movie_viewer._renderer.render_frame(frame, clip.info.trans.pos, clip.info.trans.scale, clip.info.trans.rot.angle)
 
         movie_viewer._clock.tick(movie_viewer._fps)
 

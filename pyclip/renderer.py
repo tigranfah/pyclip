@@ -28,9 +28,11 @@ class Renderer:
     def clear(self):
         self._display.fill((0, 0, 0))
 
-    def render_frame(self, position, frame):
+    def render_frame(self, frame, position, scale, rotation_angle):
 
-        surface = Converter.frame_to_surface(frame)
+        surface = Converter.frame_to_surface(frame).convert_alpha()
+        # surface = pygame.transform.scale(surface, (scale.w, scale.h))
+        surface = pygame.transform.rotate(surface, rotation_angle)
         self._display.blit(surface, (position.x, position.y))
 
     def render_gui_component(self, comp):

@@ -23,6 +23,8 @@ dol.info.trans.scale.h = 350
 view.info.trans.scale.w = 500
 view.info.trans.scale.h = 350
 
+view.info.trans.rot.angle = 30
+
 movie = pyclip.Movie("Name", W, H, 60)
 movie.put_clip(view, 0)
 movie.put_clip(dol, 100)

@@ -12,10 +12,10 @@ from transformation import Transformation, Position
 
 class ClipInfo:
     
-    def __init__(self, title, pos, rot, scale, frame_count, fps, position_type=""):
+    def __init__(self, title, pos, scale, rot, frame_count, fps, position_type=""):
 
         self.title = title
-        self.trans = Transformation(pos, rot, scale)
+        self.trans = Transformation(pos, scale, rot)
         self.frame_count = frame_count
         self.fps = fps
 
@@ -95,7 +95,7 @@ class Clip:
             raise error_handler.PathIsNotValid("{} is not a valid file directory.".format(file_path))
 
         self._clip_source = VideoCaptureSource(file_path)
-        self._info = ClipInfo(os.path.split(file_path)[-1], (0, 0), (self._clip_source.width, self._clip_source.height), (0, 0), 
+        self._info = ClipInfo(os.path.split(file_path)[-1], (0, 0), (self._clip_source.width, self._clip_source.height), 0, 
                       self._clip_source.frame_count, self._clip_source.fps, position_type="center")
 
     def initialize(self):
