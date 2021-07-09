@@ -1,6 +1,9 @@
 import pygame
 import cv2
 
+import copy
+import enum
+
 
 class Converter:
 
@@ -25,15 +28,17 @@ class Renderer:
 
         self._display = display
 
-    def clear(self):
-        self._display.fill((0, 0, 0))
+    def clear(self, color):
+        self._display.fill(color)
 
-    def render_frame(self, frame, position, scale, rotation_angle):
+    def render_frame(self, frame, pos, rot_angle):
 
         surface = Converter.frame_to_surface(frame).convert_alpha()
+        actual_center = copy.deepcopy(surface.get_rect(center=(pos.x, pos.y)).center)
         # surface = pygame.transform.scale(surface, (scale.w, scale.h))
-        surface = pygame.transform.rotate(surface, rotation_angle)
-        self._display.blit(surface, (position.x, position.y))
+        surface = pygame.transform.rotate(surface, rot_angle)
+        
+        self._display.blit(surface, (pos.x, pos.y))
 
     def render_gui_component(self, comp):
         if comp.color:

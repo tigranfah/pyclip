@@ -11,6 +11,7 @@ class MovieBase:
         self._width = width
         self._height = height
         self._fps = fps
+        self._background_color = (0, 0, 0)
 
     @property
     def title(self):
@@ -27,6 +28,14 @@ class MovieBase:
     @property
     def fps(self):
         return self._fps
+
+    @property
+    def background_color(self):
+        return self._background_color
+
+    @background_color.setter
+    def background_color(self, color):
+        self._background_color = color
 
 
 class Movie(MovieBase):
@@ -62,8 +71,7 @@ class Movie(MovieBase):
         if not self._clip_sequence:
             clip.info.pos_in_movie = (0, clip.info.frame_count)
         else:
-            prev_clip_place = self._clip_sequence[len(self._clip_sequence)].info.pos_in_movie[1]
-            clip.info.pos_in_movie = (prev_clip_place, prev_clip_place + clip.info.frame_count)
+            clip.info.pos_in_movie = (self.frame_count, self.frame_count + clip.info.frame_count)
         if clip.info.position_type:
             clip.info.trans.pos = self.__get_position_by_pos_type(clip)
         self._clip_sequence[len(self._clip_sequence) + 1] = clip

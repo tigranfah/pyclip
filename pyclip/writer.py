@@ -99,7 +99,7 @@ def export(movie_name, movie):
             current_frames.append(next(clip.get_next_frame(), np.empty(0)))
 
         for clip, frame in zip(current_clips, current_frames):
-            movie_writer._renderer.render_frame(clip.info.trans.pos, frame)
+            movie_writer._renderer.render_frame(frame, clip.info.trans.pos, clip.info.trans.rot.angle)
 
         display_frame = Converter.surface_to_frame(pygame.display.get_surface())
                 

@@ -89,7 +89,7 @@ def play(movie):
 
     current_clips = []
 
-    while True:
+    while slide_bar.get_current_value() != movie.frame_count:
 
         for event in pygame.event.get():
 
@@ -106,7 +106,6 @@ def play(movie):
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == movie_viewer._button:
                         is_playing = False if is_playing else True
-
 
             movie_viewer._manager.process_events(event)
 
@@ -132,18 +131,15 @@ def play(movie):
             for clip in current_clips:
                 current_frames.append(next(clip.get_next_frame(), np.empty(0)))
             slide_bar.set_current_value(slide_bar.get_current_value() + 1)
-            
-        if not current_clips:
-            break
                 
         mouse = movie_viewer._mouse_event
 
         movie_viewer._manager.update(time_delta)
 
-        movie_viewer._renderer.clear()
+        movie_viewer._renderer.clear(movie.background_color)
 
         for clip, frame in zip(current_clips, current_frames):
-            movie_viewer._renderer.render_frame(frame, clip.info.trans.pos, clip.info.trans.scale, clip.info.trans.rot.angle)
+            movie_viewer._renderer.render_frame(frame, clip.info.trans.pos, clip.info.trans.rot.angle)
 
         movie_viewer._clock.tick(movie_viewer._fps)
 

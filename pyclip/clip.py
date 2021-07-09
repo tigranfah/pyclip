@@ -5,6 +5,7 @@ import pygame
 from pathlib import Path
 import os
 import sys
+import logging
 
 import error_handler
 from transformation import Transformation, Position
@@ -12,9 +13,9 @@ from transformation import Transformation, Position
 
 class ClipInfo:
     
-    def __init__(self, title, pos, scale, rot, frame_count, fps, position_type=""):
+    def __init__(self, name, pos, scale, rot, frame_count, fps, position_type=""):
 
-        self.title = title
+        self.name = name
         self.trans = Transformation(pos, scale, rot)
         self.frame_count = frame_count
         self.fps = fps
@@ -97,6 +98,8 @@ class Clip:
         self._clip_source = VideoCaptureSource(file_path)
         self._info = ClipInfo(os.path.split(file_path)[-1], (0, 0), (self._clip_source.width, self._clip_source.height), 0, 
                       self._clip_source.frame_count, self._clip_source.fps, position_type="center")
+
+        logging.info("clip {} is initialized.".format(self._info.name))
 
     def initialize(self):
         self._clip_source.restore_source()
