@@ -41,7 +41,7 @@ class ClipSource:
     def read_next_frame(self):
         pass
 
-    def restore_source(self):
+    def release(self):
         pass
 
 
@@ -50,19 +50,19 @@ class VideoCaptureSource(ClipSource):
     def __init__(self, file_path):
         self._file_path = file_path
         self._capture = None
-        self.__init_capture()
+        self.init_capture()
 
-    def __init_capture(self):
+    def init_capture(self):
         self._capture = cv2.VideoCapture(self._file_path)
+
+    def release(self):
+        self._capture.release()
 
     def read_next_frame(self):
         if self._capture.isOpened():
             ret, frame = self._capture.read()
             
             return ret, frame
-
-    def restore_source(self):
-        self.__init_capture()
 
     def set_read_frame(self, frame_number):
         self._capture.set(1, frame_number)
@@ -95,15 +95,25 @@ class Clip:
         if not error_handler.path_is_valid(file_path):
             raise error_handler.PathIsNotValid("{} is not a valid file directory.".format(file_path))
 
-        self._clip_source = VideoCaptureSource(file_path)
-        self._info = ClipInfo(os.path.split(file_path)[-1], (0, 0), (self._clip_source.width, self._clip_source.height), 0, 
+        self._clip_source = None
+        self._info = None
+
+        self.acquire_source(file_path)
+
+    def acquire_source(self, path):
+        self._clip_source = VideoCaptureSource(path)
+        self._info = ClipInfo(os.path.split(path)[-1], (0, 0), (self._clip_source.width, self._clip_source.height), 0, 
                       self._clip_source.frame_count, self._clip_source.fps, position_type="center")
 
-        logging.info("clip {} is initialized.".format(self._info.name))
-
-    def initialize(self):
-        self._clip_source.restore_source()
         self._clip_source.set_read_frame(self._info.frame_indices[0])
+        logging.info("Clip {} is acquired.".format(self._info.name))
+
+    def restore_source(self):
+        self._clip_source.set_read_frame(self._info.frame_indices[0])
+    
+    def release_source(self):
+        self._clip_source.release()
+        logging.info("Clip {} is released.".format(clip.name))
 
     def get_next_frame(self):
 

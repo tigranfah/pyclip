@@ -9,7 +9,7 @@ sys.path.append(os.path.join(os.getcwd(), "pyclip"))
 
 pygame.init()
 
-logging_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+logging_format = "%(message)s - %(levelname)s - %(asctime)s - %(name)s"
 
 logging.basicConfig(level=logging.INFO, format=logging_format)
 

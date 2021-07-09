@@ -6,16 +6,16 @@ from clip import Position
 
 class MovieBase:
 
-    def __init__(self, title, width, height, fps):
-        self._title = title
+    def __init__(self, name, width, height, fps):
+        self._name = name
         self._width = width
         self._height = height
         self._fps = fps
         self._background_color = (0, 0, 0)
 
     @property
-    def title(self):
-        return self._title
+    def name(self):
+        return self._name
 
     @property
     def width(self):
@@ -40,8 +40,8 @@ class MovieBase:
 
 class Movie(MovieBase):
 
-    def __init__(self, title, width, height, fps):
-        MovieBase.__init__(self, title, width, height, fps)
+    def __init__(self, name, width, height, fps):
+        MovieBase.__init__(self, name, width, height, fps)
         self._clip_sequence = {}
 
     def __get_position_by_pos_type(self, clip):

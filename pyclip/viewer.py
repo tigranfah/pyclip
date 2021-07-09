@@ -4,6 +4,7 @@ import pygame
 import pygame_gui
 
 import time
+import logging
 
 from movie import MovieBase
 from renderer import Renderer, Converter
@@ -25,8 +26,6 @@ class MovieViewer(MovieBase):
         self._clock = pygame.time.Clock()
 
         self._renderer = None
-
-        self._mouse_event = None
 
         self._movie_width = None
         self._movie_height = None
@@ -74,6 +73,8 @@ MovieViewer()
 
 def play(movie):
 
+    logging.info("Playing movie {}.".format(movie.name))
+
     movie_viewer = MovieViewer.get_instance()
 
     time_delta = movie_viewer._clock.tick(60)/1000.0
@@ -118,12 +119,11 @@ def play(movie):
 
         for clip in prev_current_clips:
             if not clip in current_clips:
-                clip.initialize()
+                clip.restore_source()
 
         if has_been_moved:
             for clip in current_clips:
                 clip.clip_source.set_read_frame(slide_bar.get_current_value() - clip.info.pos_in_movie[0] + clip.info.frame_indices[0])
-                # print("moved to", clip)
             has_been_moved = False
 
         if is_playing and not is_moving:
@@ -131,9 +131,7 @@ def play(movie):
             for clip in current_clips:
                 current_frames.append(next(clip.get_next_frame(), np.empty(0)))
             slide_bar.set_current_value(slide_bar.get_current_value() + 1)
-                
-        mouse = movie_viewer._mouse_event
-
+            
         movie_viewer._manager.update(time_delta)
 
         movie_viewer._renderer.clear(movie.background_color)
@@ -150,3 +148,5 @@ def play(movie):
         movie_viewer._clock.tick(60)
 
     pygame.display.quit()
+
+    logging.info("Played movie {}.".format(movie.name))

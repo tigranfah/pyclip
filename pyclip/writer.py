@@ -3,6 +3,7 @@ import pygame
 import numpy as np
 
 import time
+import logging
 
 from movie import MovieBase
 from renderer import Renderer, Converter
@@ -58,6 +59,8 @@ def export(movie_name, movie):
 
     time1 = time.time()
 
+    logging.info("Exporting movie {}.".format(movie.name))
+
     movie_writer = MovieWriter.get_instance()
 
     movie_writer.init_display(movie.width, movie.height, movie.fps)
@@ -89,10 +92,7 @@ def export(movie_name, movie):
             
         current_clips = [clip for i, clip in movie.get_clip_by_frame_index(frame_index)]
 
-        if not current_clips:
-            break
-
-        movie_writer._renderer.clear()
+        movie_writer._renderer.clear(movie.background_color)
 
         current_frames = []
         for clip in current_clips:
@@ -108,3 +108,5 @@ def export(movie_name, movie):
     # print(time.time() - time1)
 
     pygame.display.quit()
+
+    logging.info("Exported movie {}.".format(movie.name))

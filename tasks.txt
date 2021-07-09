@@ -3,7 +3,7 @@
 3. Create video overlaping feature. (2 clips in one display (ege one on another)) +
 4. Rotate clips +
 5. Create sound 
-6. Create logging
+6. Create logging -
 
 
 Bugs.
