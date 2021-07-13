@@ -3,10 +3,12 @@ import pygame
 import numpy as np
 
 import time
+import sys
 import logging
 
 from movie import MovieBase
 from renderer import Renderer, Converter
+import progress_bar
 
 
 class MovieWriter(MovieBase):
@@ -105,8 +107,10 @@ def export(movie_name, movie):
                 
         movie_writer._video_writer.write(display_frame)
 
+        progress_bar.print_progress(frame_index, movie.frame_count, 30)
+
     # print(time.time() - time1)
 
     pygame.display.quit()
 
-    logging.info("Exported movie {}.".format(movie.name))
+    logging.info("\nExported movie {}.".format(movie.name))
