@@ -31,14 +31,15 @@ class Renderer:
     def clear(self, color):
         self._display.fill(color)
 
-    def render_frame(self, frame, pos, rot_angle):
+    def render_frame(self, w, h, frame, trans):
 
-        surface = Converter.frame_to_surface(frame).convert_alpha()
-        actual_center = copy.deepcopy(surface.get_rect(center=(pos.x, pos.y)).center)
-        # surface = pygame.transform.scale(surface, (scale.w, scale.h))
-        surface = pygame.transform.rotate(surface, rot_angle)
-        
-        self._display.blit(surface, (pos.x, pos.y))
+        resized_frame = cv2.resize(frame, (int(w * trans.scale.w), int(h * trans.scale.h)), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
+
+        surface = Converter.frame_to_surface(resized_frame).convert_alpha()
+        # actual_center = copy.deepcopy(surface.get_rect(center=(trans.pos.x, trans.pos.y)).center)
+        surface = pygame.transform.rotate(surface, trans.rot.angle)
+
+        self._display.blit(surface, (w * trans.pos.x, h * trans.pos.y))
 
     def render_gui_component(self, comp):
         if comp.color:

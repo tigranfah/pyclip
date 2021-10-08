@@ -13,21 +13,23 @@ view.info.position_type = "top-left"
 nat.info.position_type = "center"
 dol.info.position_type = "bottom-right"
 
-# dol.info.trans.scale.w = 500
-# dol.info.trans.scale.h = 350
+dol.info.trans.scale.w = 0.5
+dol.info.trans.scale.h = 0.5
 
-# nat.info.trans.scale.w = 500
-# nat.info.trans.scale.h = 350
+nat.info.trans.scale.w = 0.4
+nat.info.trans.scale.h = 0.4
+nat.info.trans.rot.angle = 45
 
-# view.info.trans.scale.w = 500
-# view.info.trans.scale.h = 350
-# view.info.trans.rot.angle = 90
+view.info.trans.scale.w = 0.2
+view.info.trans.scale.h = 0.5
+view.info.trans.rot.angle = 90
 
 movie = pyclip.Movie("Name", W, H, 60)
-movie.background_color = (255, 0, 0)
+# movie.background_color = (255, 0, 0)
 movie.put_clip(nat, 100)
 movie.put_clip(dol, 150)
 movie.put_clip(view, 200)
 # print(movie.clip_sequence)
 
-pyclip.export("movie", movie)
+pyclip.play(movie)
+# pyclip.export("move", movie)

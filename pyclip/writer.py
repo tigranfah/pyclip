@@ -81,9 +81,9 @@ def export(movie_name, movie):
     #         movie_writer._renderer.clear()
 
     #         movie_writer._renderer.render_frame(current_clip.position, frame)
-                
+
     #         dsiplay_frame = Converter.surface_to_frame(pygame.display.get_surface())
-                
+
     #         movie_writer._video_writer.write(dsiplay_frame)
 
     # print(time.time() - time1)
@@ -91,7 +91,7 @@ def export(movie_name, movie):
     # pygame.display.quit()
 
     for frame_index in range(1, movie.frame_count + 1):
-            
+
         current_clips = [clip for i, clip in movie.get_clip_by_frame_index(frame_index)]
 
         movie_writer._renderer.clear(movie.background_color)
@@ -101,10 +101,10 @@ def export(movie_name, movie):
             current_frames.append(next(clip.get_next_frame(), np.empty(0)))
 
         for clip, frame in zip(current_clips, current_frames):
-            movie_writer._renderer.render_frame(frame, clip.info.trans.pos, clip.info.trans.rot.angle)
+            movie_writer._renderer.render_frame(movie.width, movie.height, frame, clip.info.trans)
 
         display_frame = Converter.surface_to_frame(pygame.display.get_surface())
-                
+
         movie_writer._video_writer.write(display_frame)
 
         progress_bar.print_progress(frame_index, movie.frame_count, 30)

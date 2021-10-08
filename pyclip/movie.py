@@ -25,6 +25,14 @@ class MovieBase:
     def height(self):
         return self._height
 
+    @width.setter
+    def width(self, width):
+        self._width = width
+
+    @height.setter
+    def height(self, height):
+        self._height = height
+
     @property
     def fps(self):
         return self._fps
@@ -43,28 +51,29 @@ class Movie(MovieBase):
     def __init__(self, name, width, height, fps):
         MovieBase.__init__(self, name, width, height, fps)
         self._clip_sequence = {}
+        self._audio_sequence = {}
 
     def __get_position_by_pos_type(self, clip):
         return {
             "" : (0, 0),
             "center" : (
-                (self._width - clip.info.trans.scale.w) / 2,
-                (self._height - clip.info.trans.scale.h) / 2
+                (1 - clip.info.trans.scale.w) / 2,
+                (1 - clip.info.trans.scale.h) / 2
             ),
-            "left" : (0, (self._height - clip.info.trans.scale.h) / 2),
-            "top" : ((self._width - clip.info.trans.scale.w) / 2, 0),
+            "left" : (0, (1 - clip.info.trans.scale.h) / 2),
+            "top" : ((1 - clip.info.trans.scale.w) / 2, 0),
             "right" : (
-                self._width - clip.info.trans.scale.w,
-                (self._height - clip.info.trans.scale.h) / 2
+                1 - clip.info.trans.scale.w,
+                (1 - clip.info.trans.scale.h) / 2
             ),
             "bottom" : (
-                (self._width - clip.info.trans.scale.w) / 2,
-                self._height - clip.info.trans.scale.h
+                (1 - clip.info.trans.scale.w) / 2,
+                1 - clip.info.trans.scale.h
             ),
             "top-left" : (0, 0),
-            "top-right" : (self._width - clip.info.trans.scale.w, 0),
-            "bottom-left" : (0, self._height - clip.info.trans.scale.h),
-            "bottom-right" : (self._width - clip.info.trans.scale.w, self._height - clip.info.trans.scale.h)
+            "top-right" : (1 - clip.info.trans.scale.w, 0),
+            "bottom-left" : (0, 1 - clip.info.trans.scale.h),
+            "bottom-right" : (1 - clip.info.trans.scale.w, 1 - clip.info.trans.scale.h)
         }[clip.info.position_type]
 
     def append_clip(self, clip):
@@ -75,7 +84,7 @@ class Movie(MovieBase):
         if clip.info.position_type:
             clip.info.trans.pos = self.__get_position_by_pos_type(clip)
         self._clip_sequence[len(self._clip_sequence) + 1] = clip
-
+        
     def put_clip(self, clip, frame_number):
         clip.info.pos_in_movie = (frame_number, frame_number + clip.info.frame_count)
         if clip.info.position_type:
@@ -98,3 +107,12 @@ class Movie(MovieBase):
     @property
     def clip_sequence(self):
         return self._clip_sequence
+
+    # @width.setter
+    # def width(self, width):
+    #     MovieBase.width(self, width)
+    #
+    #
+    # @height.setter
+    # def height(self, height):
+    #     MovieBase.height(self, height)

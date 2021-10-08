@@ -12,7 +12,7 @@ from transformation import Transformation, Position
 
 
 class ClipInfo:
-    
+
     def __init__(self, name, pos, scale, rot, frame_count, fps, position_type=""):
 
         self.name = name
@@ -30,6 +30,10 @@ class ClipInfo:
     def frame_indices(self):
         return self._frame_indices
 
+    @property
+    def duration_in_seconds(self):
+        return self.frame_count / self.fps
+
     @frame_indices.setter
     def frame_indices(self, frame_ind):
         self.frame_count = frame_ind[1] - frame_ind[0]
@@ -37,7 +41,7 @@ class ClipInfo:
 
 
 class ClipSource:
-    
+
     def read_next_frame(self):
         pass
 
@@ -46,13 +50,14 @@ class ClipSource:
 
 
 class VideoCaptureSource(ClipSource):
-    
+
     def __init__(self, file_path):
+        print("here")
         self._file_path = file_path
         self._capture = None
-        self.init_capture()
+        self.init_clip()
 
-    def init_capture(self):
+    def init_clip(self):
         self._capture = cv2.VideoCapture(self._file_path)
 
     def release(self):
@@ -61,7 +66,7 @@ class VideoCaptureSource(ClipSource):
     def read_next_frame(self):
         if self._capture.isOpened():
             ret, frame = self._capture.read()
-            
+
             return ret, frame
 
     def set_read_frame(self, frame_number):
@@ -102,7 +107,7 @@ class Clip:
 
     def acquire_source(self, path):
         self._clip_source = VideoCaptureSource(path)
-        self._info = ClipInfo(os.path.split(path)[-1], (0, 0), (self._clip_source.width, self._clip_source.height), 0, 
+        self._info = ClipInfo(os.path.split(path)[-1], (0, 0), (self._clip_source.width, self._clip_source.height), 0,
                       self._clip_source.frame_count, self._clip_source.fps, position_type="center")
 
         self._clip_source.set_read_frame(self._info.frame_indices[0])
@@ -110,7 +115,7 @@ class Clip:
 
     def restore_source(self):
         self._clip_source.set_read_frame(self._info.frame_indices[0])
-    
+
     def release_source(self):
         self._clip_source.release()
         logging.info("Clip {} is released.".format(clip.name))
@@ -122,16 +127,14 @@ class Clip:
 
             if not ret: break
 
-            resized_frame = cv2.resize(frame, (self._info.trans.scale.w, self._info.trans.scale.h), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
-
-            yield resized_frame
+            yield frame
 
     def cut_from_left(self, frame_number):
         self._info.frame_indices = (self._info.frame_indices[0] + frame_number, self._info.frame_indices[1])
-        
+
     def cut_from_right(self, frame_number):
         self._info.frame_indices = (self._info.frame_indices[0], self._info.frame_indices[1] - frame_number)
-        
+
     @property
     def info(self):
         return self._info
