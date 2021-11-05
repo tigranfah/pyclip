@@ -1,9 +1,11 @@
-import pygame
-import pygame_gui
-
 import sys
 import os
 import logging
+
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
+import pygame
+import pygame_gui
 
 sys.path.append(os.path.join(os.getcwd(), "pyclip"))
 

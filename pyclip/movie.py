@@ -84,17 +84,19 @@ class Movie(MovieBase):
         if clip.info.position_type:
             clip.info.trans.pos = self.__get_position_by_pos_type(clip)
         self._clip_sequence[len(self._clip_sequence) + 1] = clip
-        
+
     def put_clip(self, clip, frame_number):
         clip.info.pos_in_movie = (frame_number, frame_number + clip.info.frame_count)
         if clip.info.position_type:
             clip.info.trans.pos = self.__get_position_by_pos_type(clip)
         self._clip_sequence[len(self._clip_sequence) + 1] = clip
 
-    def get_clip_by_frame_index(self, index):
+    def process_running_clips(self, index):
         for i, clip in self._clip_sequence.items():
-            if clip.info.pos_in_movie[0] <= index and clip.info.pos_in_movie[1] > index:
+            if clip.info.pos_in_movie[0] <= index < clip.info.pos_in_movie[1]:
                 yield i, clip
+            elif clip.clip_source.current_frame_index != 0:
+                clip.restore_source()
 
     @property
     def frame_count(self):

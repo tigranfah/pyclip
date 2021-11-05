@@ -17,3 +17,7 @@ class PathIsNotValid(Exception):
 
 class ValueError(Exception):
     pass
+
+
+class SingletonClass(Exception):
+    pass

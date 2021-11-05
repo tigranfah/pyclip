@@ -36,7 +36,6 @@ class Renderer:
         resized_frame = cv2.resize(frame, (int(w * trans.scale.w), int(h * trans.scale.h)), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
 
         surface = Converter.frame_to_surface(resized_frame).convert_alpha()
-        # actual_center = copy.deepcopy(surface.get_rect(center=(trans.pos.x, trans.pos.y)).center)
         surface = pygame.transform.rotate(surface, trans.rot.angle)
 
         self._display.blit(surface, (w * trans.pos.x, h * trans.pos.y))

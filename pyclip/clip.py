@@ -52,7 +52,6 @@ class ClipSource:
 class VideoCaptureSource(ClipSource):
 
     def __init__(self, file_path):
-        print("here")
         self._file_path = file_path
         self._capture = None
         self.init_clip()
@@ -65,8 +64,8 @@ class VideoCaptureSource(ClipSource):
 
     def read_next_frame(self):
         if self._capture.isOpened():
-            ret, frame = self._capture.read()
 
+            ret, frame = self._capture.read()
             return ret, frame
 
     def set_read_frame(self, frame_number):
@@ -115,17 +114,17 @@ class Clip:
 
     def restore_source(self):
         self._clip_source.set_read_frame(self._info.frame_indices[0])
+        logging.info("Clip {} is restored.".format(self._info.name))
 
     def release_source(self):
         self._clip_source.release()
-        logging.info("Clip {} is released.".format(clip.name))
+        logging.info("Clip {} is released.".format(self._info.name))
 
     def get_next_frame(self):
 
-        while self._clip_source.current_frame_index <= self._info.frame_indices[1]:
-            ret, frame = self._clip_source.read_next_frame()
+        if self._clip_source.current_frame_index <= self._info.frame_indices[1]:
 
-            if not ret: break
+            ret, frame = self._clip_source.read_next_frame()
 
             yield frame
 

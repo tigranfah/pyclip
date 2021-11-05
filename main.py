@@ -26,10 +26,9 @@ view.info.trans.rot.angle = 90
 
 movie = pyclip.Movie("Name", W, H, 60)
 # movie.background_color = (255, 0, 0)
-movie.put_clip(nat, 100)
+movie.put_clip(nat, 0)
 movie.put_clip(dol, 150)
-movie.put_clip(view, 200)
-# print(movie.clip_sequence)
+movie.put_clip(view, 0)
 
 pyclip.play(movie)
 # pyclip.export("move", movie)
