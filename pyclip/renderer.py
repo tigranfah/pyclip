@@ -27,6 +27,7 @@ class Renderer:
     def __init__(self, display):
 
         self._display = display
+        self._rendering_surface = None
 
     def clear(self, color):
         self._display.fill(color)
@@ -40,9 +41,8 @@ class Renderer:
 
         self._display.blit(surface, (w * trans.pos.x, h * trans.pos.y))
 
-    def render_gui_component(self, comp):
-        if comp.color:
-            pygame.draw.rect(self._display, comp.color, (comp.position.x, comp.position.y, comp.width, comp.height))
+    def render_current_surface(self):
+        self._display.blit(self._rendering_surface, (0, 0))
 
-        for sub_comp in comp.subcomponents:
-            self.render_gui_component(sub_comp)
+    # def render_surface(self, surface, x, y):
+    #

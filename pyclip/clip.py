@@ -9,6 +9,7 @@ import logging
 
 import error_handler
 from transformation import Transformation, Position
+import logger
 
 
 class ClipInfo:
@@ -104,21 +105,20 @@ class Clip:
 
         self.acquire_source(file_path)
 
+    @logger.post_clip_message("is acquired")
     def acquire_source(self, path):
         self._clip_source = VideoCaptureSource(path)
         self._info = ClipInfo(os.path.split(path)[-1], (0, 0), (self._clip_source.width, self._clip_source.height), 0,
                       self._clip_source.frame_count, self._clip_source.fps, position_type="center")
 
         self._clip_source.set_read_frame(self._info.frame_indices[0])
-        logging.info("Clip {} is acquired.".format(self._info.name))
 
     def restore_source(self):
         self._clip_source.set_read_frame(self._info.frame_indices[0])
-        logging.info("Clip {} is restored.".format(self._info.name))
 
+    @logger.post_clip_message("is released")
     def release_source(self):
         self._clip_source.release()
-        logging.info("Clip {} is released.".format(self._info.name))
 
     def get_next_frame(self):
 
