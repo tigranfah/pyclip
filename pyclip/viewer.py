@@ -120,10 +120,8 @@ def play(movie):
                 for i, clip in movie_viewer._viewing_movie.process_running_clips(movie_viewer._timeline_slider.get_current_value()):
                     clip.clip_source.set_read_frame(movie_viewer._timeline_slider.get_current_value() - clip.info.pos_in_movie[0] + clip.info.frame_indices[0])
 
-        if movie_viewer._is_rendering_frames:
+        if not movie_viewer._timeline_slider.is_moving and movie_viewer._is_rendering_frames:
             movie_viewer.render_clip_frames()
-        # else:
-        #     movie_viewer._renderer.render_current_surface()
 
 
         movie_viewer._clock.tick(movie_viewer._fps)
