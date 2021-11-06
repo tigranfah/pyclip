@@ -53,7 +53,8 @@ class MovieViewer(MovieBase):
 
     def render_clip_frames(self):
         for i, clip in self._viewing_movie.process_running_clips(self._timeline_slider.get_current_value()):
-            frame = next(clip.get_next_frame())
+            frame = next(clip.get_next_frame(), np.empty(0))
+            if frame.shape[0] == 0: raise Exception("Empty frame.")
             self._renderer.render_frame(self._width, self._height-100, frame, clip.info.trans)
         if not self._viewing_movie.frame_count == self._timeline_slider.get_current_value():
             self._timeline_slider.set_current_value(self._timeline_slider.get_current_value() + 1)
@@ -100,9 +101,11 @@ MovieViewer()
 
 
 @logger.movie_view_log
-def play(movie):
+def play(movie, width=int(720/1.5), height=int(480/1.5)):
 
     movie_viewer = MovieViewer.get_instance()
+    movie_viewer.width = width
+    movie_viewer.height = height
     movie_viewer.init_viewer(movie)
 
     time_delta = movie_viewer._clock.tick(60)/1000.0

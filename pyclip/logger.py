@@ -3,9 +3,9 @@ import logging
 
 def movie_view_log(func):
 
-    def inner_func(movie):
+    def inner_func(movie, width, height):
         logging.info("Playing movie {}.".format(movie.name))
-        ret = func(movie)
+        ret = func(movie, width, height)
         if ret:
             logging.info("Finished playing movie {}.".format(movie.name))
         else:

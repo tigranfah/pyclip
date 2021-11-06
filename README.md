@@ -1,6 +1,6 @@
-# PyClips
+# Pyclip
 
-**Pyclip** is a very simple, but flexible video processing library written in Python3.
+**Pyclip** is a very simple, but flexible video editing library written in Python3.
 
 ```python
 import pyclip
