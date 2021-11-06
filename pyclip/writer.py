@@ -9,6 +9,7 @@ import logging
 from movie import MovieBase
 from renderer import Renderer, Converter
 import progress_bar
+import logger
 
 
 class MovieWriter(MovieBase):
@@ -31,12 +32,12 @@ class MovieWriter(MovieBase):
 
         MovieWriter.__instance = self
 
-    def init_display(self, width, height, fps):
-        self._width = width
-        self._height = height
-        self._fps = fps
+    def init_display(self, movie):
+        self._width = movie.width
+        self._height = movie.height
+        self._fps = movie.fps
 
-        self._display = pygame.display.set_mode((width, height), flags=pygame.HIDDEN)
+        self._display = pygame.display.set_mode((movie.width, movie.height), flags=pygame.HIDDEN)
         pygame.display.set_caption("Writer window.")
 
         self._renderer = Renderer(self._display)
@@ -57,50 +58,31 @@ class MovieWriter(MovieBase):
 MovieWriter()
 
 
-def export(movie_name, movie):
-
-    time1 = time.time()
-
-    logging.info("Exporting movie {}.".format(movie.name))
+@logger.movie_writer_log
+def export(movie):
 
     movie_writer = MovieWriter.get_instance()
 
-    movie_writer.init_display(movie.width, movie.height, movie.fps)
+    movie_writer.init_display(movie)
 
-    movie_writer._video_writer = cv2.VideoWriter("{}.mp4".format(movie_name), cv2.VideoWriter_fourcc(*"mp4v"), 30, (movie.width, movie.height))
-
-    # while True:
-
-    #     if not current_clip:
-    #         break
-
-    #     clip_index = clip_index + 1
-
-    #     for frame in current_clip.get_next_frame():
-
-    #         movie_writer._renderer.clear()
-
-    #         movie_writer._renderer.render_frame(current_clip.position, frame)
-
-    #         dsiplay_frame = Converter.surface_to_frame(pygame.display.get_surface())
-
-    #         movie_writer._video_writer.write(dsiplay_frame)
-
-    # print(time.time() - time1)
-
-    # pygame.display.quit()
+    movie_writer._video_writer = cv2.VideoWriter("{}.mp4".format(movie.name), cv2.VideoWriter_fourcc(*"mp4v"), 30, (movie.width, movie.height))
 
     for frame_index in range(1, movie.frame_count + 1):
 
-        current_clips = [clip for i, clip in movie.get_clip_by_frame_index(frame_index)]
+        # current_clips = [clip for i, clip in movie.get_clip_by_frame_index(frame_index)]
 
         movie_writer._renderer.clear(movie.background_color)
 
-        current_frames = []
-        for clip in current_clips:
-            current_frames.append(next(clip.get_next_frame(), np.empty(0)))
+        # current_frames = []
+        # for clip in current_clips:
+        #     current_frames.append(next(clip.get_next_frame(), np.empty(0)))
+        #
+        # for clip, frame in zip(current_clips, current_frames):
+        #     movie_writer._renderer.render_frame(movie.width, movie.height, frame, clip.info.trans)
+        #
 
-        for clip, frame in zip(current_clips, current_frames):
+        for i, clip in movie.process_running_clips(frame_index):
+            frame = next(clip.get_next_frame())
             movie_writer._renderer.render_frame(movie.width, movie.height, frame, clip.info.trans)
 
         display_frame = Converter.surface_to_frame(pygame.display.get_surface())
@@ -113,4 +95,4 @@ def export(movie_name, movie):
 
     pygame.display.quit()
 
-    logging.info("\nExported movie {}.".format(movie.name))
+    return True

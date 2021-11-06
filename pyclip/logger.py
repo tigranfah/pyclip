@@ -14,6 +14,17 @@ def movie_view_log(func):
     return inner_func
 
 
+def movie_writer_log(func):
+
+    def inner_func(movie):
+        logging.info("Exporting movie {}.".format(movie.name))
+        ret = func(movie)
+        if ret:
+            logging.info("\nExported movie {} to {}.mp4 file.".format(movie.name, movie.name))
+
+    return inner_func
+
+
 def pre_clip_message(message):
     def clip_func(func):
         def inner_func(self, *args, **kwargs):

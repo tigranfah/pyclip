@@ -30,5 +30,5 @@ movie.put_clip(nat, 0)
 movie.put_clip(dol, 150)
 movie.put_clip(view, 0)
 
-pyclip.play(movie)
-# pyclip.export("move", movie)
+# pyclip.play(movie)
+pyclip.export(movie)

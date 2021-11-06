@@ -123,7 +123,6 @@ def play(movie):
         if not movie_viewer._timeline_slider.is_moving and movie_viewer._is_rendering_frames:
             movie_viewer.render_clip_frames()
 
-
         movie_viewer._clock.tick(movie_viewer._fps)
 
         movie_viewer._gui_manager.update(time_delta)
